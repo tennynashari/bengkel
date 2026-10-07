@@ -40,7 +40,8 @@ exports.updateOutlet = async (req, res) => {
       qris_image,
       qris_merchant_name,
       open_time, 
-      close_time 
+      close_time,
+      hero_image 
     } = req.body;
 
     const existing = await db.get('SELECT * FROM outlets WHERE id = ?', [id]);
@@ -64,7 +65,8 @@ exports.updateOutlet = async (req, res) => {
         qris_image = ?,
         qris_merchant_name = ?,
         open_time = ?,
-        close_time = ?
+        close_time = ?,
+        hero_image = ?
       WHERE id = ?
     `, [
       name || existing.name,
@@ -82,6 +84,7 @@ exports.updateOutlet = async (req, res) => {
       qris_merchant_name !== undefined ? qris_merchant_name : existing.qris_merchant_name,
       open_time || existing.open_time,
       close_time || existing.close_time,
+      hero_image !== undefined ? hero_image : existing.hero_image,
       id
     ]);
 

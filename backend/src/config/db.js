@@ -104,7 +104,8 @@ const createTablesPg = async () => {
       city VARCHAR(100) NOT NULL,
       phone VARCHAR(50) NOT NULL,
       open_time VARCHAR(10) DEFAULT '08:00',
-      close_time VARCHAR(10) DEFAULT '18:00'
+      close_time VARCHAR(10) DEFAULT '18:00',
+      hero_image TEXT
     );
 
     CREATE TABLE IF NOT EXISTS work_bays (
@@ -210,6 +211,12 @@ const createTablesPg = async () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  try {
+    await pgPool.query('ALTER TABLE outlets ADD COLUMN hero_image TEXT');
+  } catch (e) {
+    // Column already exists
+  }
 };
 
 const createTablesSqlite = async () => {
@@ -221,7 +228,8 @@ const createTablesSqlite = async () => {
       city TEXT NOT NULL,
       phone TEXT NOT NULL,
       open_time TEXT DEFAULT '08:00',
-      close_time TEXT DEFAULT '18:00'
+      close_time TEXT DEFAULT '18:00',
+      hero_image TEXT
     );
     CREATE TABLE IF NOT EXISTS work_bays (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -317,6 +325,12 @@ const createTablesSqlite = async () => {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  try {
+    await run('ALTER TABLE outlets ADD COLUMN hero_image TEXT');
+  } catch (e) {
+    // Column already exists
+  }
 };
 
 const seedInitialData = async () => {

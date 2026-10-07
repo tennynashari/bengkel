@@ -357,7 +357,7 @@ export default function App() {
                 )}
                 {adminUser?.role === 'SUPER_ADMIN' && activeAdminTab === 'settings' && (
                 <SettingsManager 
-                  outlet={outlets[0]}
+                  outlet={effectiveOutletId !== 'ALL' ? (outlets.find(o => Number(o.id) === Number(effectiveOutletId)) || outlets[0]) : outlets[0]}
                   onRefresh={loadData}
                 />
               )}

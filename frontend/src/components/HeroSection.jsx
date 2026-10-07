@@ -1,10 +1,13 @@
 import { useLanguage } from '../context/LanguageContext';
 import React, { useState } from 'react';
-import { Search, Sparkles, Shield, Clock, Car, ChevronRight, CheckCircle2, QrCode, MapPin, Building2 } from 'lucide-react';
+import { Search, Sparkles, Shield, Clock, ChevronRight, QrCode, Building2 } from 'lucide-react';
 
 export default function HeroSection({ onOpenBooking, onTrackSearch, outlets = [], selectedOutletId = 1, onSelectOutlet }) {
   const { t } = useLanguage();
   const [searchCode, setSearchCode] = useState('');
+
+  const activeOutlet = outlets.find(o => Number(o.id) === Number(selectedOutletId)) || outlets[0];
+  const heroImage = activeOutlet?.hero_image || outlets?.find(o => o.hero_image)?.hero_image;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -14,17 +17,28 @@ export default function HeroSection({ onOpenBooking, onTrackSearch, outlets = []
   };
 
   return (
-    <section className="relative overflow-hidden pt-8 pb-16 sm:pt-16 sm:pb-24 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+    <section className="relative overflow-hidden pt-8 pb-16 sm:pt-16 sm:pb-24 bg-slate-950">
       
-      {/* Background Decorative Lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute top-1/2 right-10 w-64 sm:w-80 h-64 sm:h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Background Custom Hero Image if set */}
+      {heroImage ? (
+        <>
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-100 z-0 pointer-events-none transition-all duration-700"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-slate-950/20 to-slate-950/80 z-0 pointer-events-none" />
+        </>
+      ) : (
+        <>
+          {/* Default Background Decorative Lighting */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/2 right-10 w-64 sm:w-80 h-64 sm:h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        </>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         <div className="text-center max-w-3xl mx-auto space-y-4 sm:space-y-6">
-          
-          {/* Top Pill Badge */}
           
           {/* Branch Selector Card in Hero Section */}
           {outlets && outlets.length > 0 && (
@@ -51,27 +65,28 @@ export default function HeroSection({ onOpenBooking, onTrackSearch, outlets = []
               </select>
             </div>
           )}
-<div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/30 text-amber-300 text-xs font-semibold shadow-sm">
+
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/30 text-amber-300 text-xs font-semibold shadow-sm backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Auto Detailing & Cuci Hidrolik Standar Premium</span>
           </div>
 
           {/* Main Hero Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black font-heading text-white tracking-tight leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black font-heading text-white tracking-tight leading-[1.15] drop-shadow-lg">
             Perawatan Kendaraan <br />
             <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent">
               Transparan & Realtime
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed px-2">
+          <p className="text-sm sm:text-base text-slate-200 max-w-2xl mx-auto leading-relaxed px-2 drop-shadow-md font-medium">
             Nikmati layanan poles bodi, Nano Ceramic Coating 9H, dan cuci hidrolik dengan sistem tracking pengerjaan pit langsung dari ponsel Anda.
           </p>
 
           {/* Quick Search Tracker Form */}
           <form 
             onSubmit={handleSearchSubmit} 
-            className="max-w-xl mx-auto p-1.5 sm:p-2 bg-slate-900/90 border border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center gap-2"
+            className="max-w-xl mx-auto p-1.5 sm:p-2 bg-slate-900/90 border border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center gap-2 backdrop-blur-md"
           >
             <div className="relative w-full flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -106,7 +121,7 @@ export default function HeroSection({ onOpenBooking, onTrackSearch, outlets = []
 
           {/* 3 Value Pillars */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-6 text-left max-w-4xl mx-auto">
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center gap-3">
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800/80 flex items-center gap-3 backdrop-blur-md">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
                 <Clock className="w-5 h-5" />
               </div>
@@ -116,7 +131,7 @@ export default function HeroSection({ onOpenBooking, onTrackSearch, outlets = []
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center gap-3">
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800/80 flex items-center gap-3 backdrop-blur-md">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
                 <QrCode className="w-5 h-5" />
               </div>
@@ -126,7 +141,7 @@ export default function HeroSection({ onOpenBooking, onTrackSearch, outlets = []
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center gap-3">
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800/80 flex items-center gap-3 backdrop-blur-md">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
                 <Shield className="w-5 h-5" />
               </div>

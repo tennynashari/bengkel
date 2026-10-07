@@ -8,7 +8,8 @@ import {
   AlertCircle,
   Landmark,
   QrCode,
-  Trash2
+  Trash2,
+  Image as ImageIcon
 } from 'lucide-react';
 import { getOutlets, updateOutlet } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
@@ -23,7 +24,7 @@ const compressImage = (file) => {
       img.src = event.target.result;
       img.onload = () => {
         const elem = document.createElement('canvas');
-        const maxDimension = 1000;
+        const maxDimension = 1200;
         let width = img.width;
         let height = img.height;
 
@@ -49,7 +50,7 @@ const compressImage = (file) => {
   });
 };
 
-export default function SettingsManager() {
+export default function SettingsManager({ outlet: propOutlet, onRefresh }) {
   const { t } = useLanguage();
   const [outlet, setOutlet] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,20 +73,23 @@ export default function SettingsManager() {
     secondary_account_holder: '',
     qris_merchant_name: '',
     qris_image: '',
+    hero_image: '',
     open_time: '08:00',
     close_time: '20:00'
   });
 
   useEffect(() => {
     loadOutletData();
-  }, []);
+  }, [propOutlet?.id]);
 
   const loadOutletData = async () => {
     setLoading(true);
     try {
       const res = await getOutlets();
       if (res.data && res.data.length > 0) {
-        const o = res.data[0];
+        // Find matching propOutlet if provided, or default to HQ (id:1), or first element
+        const targetId = propOutlet?.id ? Number(propOutlet.id) : 1;
+        const o = res.data.find(x => Number(x.id) === targetId) || res.data[0];
         setOutlet(o);
         setFormData({
           name: o.name || 'AutoDetailing & Wash Hub Jakarta',
@@ -101,6 +105,7 @@ export default function SettingsManager() {
           secondary_account_holder: o.secondary_account_holder || 'PT AUTOBENGKEL DETAILING',
           qris_merchant_name: o.qris_merchant_name || 'AUTOBENGKEL DETAILING HUB',
           qris_image: o.qris_image || '',
+          hero_image: o.hero_image || '',
           open_time: o.open_time || '08:00',
           close_time: o.close_time || '20:00'
         });
@@ -120,6 +125,14 @@ export default function SettingsManager() {
     }
   };
 
+  const handleHeroImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const compressed = await compressImage(file);
+      setFormData(prev => ({ ...prev, hero_image: compressed }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!outlet?.id) return;
@@ -130,6 +143,9 @@ export default function SettingsManager() {
     try {
       await updateOutlet(outlet.id, formData);
       setSuccessMessage(t('st_saveSuccess'));
+      if (onRefresh) {
+        await onRefresh();
+      }
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
       setErrorMessage(t('st_saveFail') + (err.response?.data?.error || err.message));
@@ -177,6 +193,64 @@ export default function SettingsManager() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         
+        {/* KELOMPOK GAMBAR HERO SECTION LANDING PAGE */}
+        <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5">
+          <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+            <ImageIcon className="w-5 h-5 text-amber-400" />
+            <h3 className="text-sm font-heading font-bold text-white uppercase tracking-wider">
+              {t('st_heroGroup')}
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-400 font-bold mb-1">{t('st_heroUpload')}</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHeroImageUpload}
+                  className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">{t('st_heroHint')}</p>
+              </div>
+
+              {formData.hero_image && (
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, hero_image: '' })}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{t('st_heroDelete')}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Preview Box Hero Banner */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t('st_heroPreviewTitle')}</span>
+              {formData.hero_image ? (
+                <div className="relative rounded-2xl overflow-hidden border border-slate-700 shadow-xl group">
+                  <img 
+                    src={formData.hero_image} 
+                    alt="Hero Banner Preview" 
+                    className="w-full h-36 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <span className="text-xs font-bold text-amber-300 bg-slate-900/90 px-3 py-1 rounded-lg border border-amber-500/30">Gambar Hero Aktif</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-36 rounded-2xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 gap-2">
+                  <ImageIcon className="w-8 h-8 text-slate-600" />
+                  <span className="text-[10px] text-slate-500 font-medium px-4">{t('st_heroNoImage')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* KELOMPOK 1: INFORMASI QRIS */}
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5">
           <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
